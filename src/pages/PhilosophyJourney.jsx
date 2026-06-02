@@ -3,6 +3,7 @@ import { useToast } from "../components/Toast";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { SceneArt } from "../components/journey/JourneyArt";
 import DialogueSequence, { SpeechBubble } from "../components/journey/GuideSpeech";
+import primitiveSituationVideo from "../video/primitive-situation.mp4";
 import {
   INTRO,
   ROUND_COGNITIVE,
@@ -182,20 +183,50 @@ function OpenChoice({ prompt, options, afterText, footer, onContinue, continueLa
   );
 }
 
-// --- Banner canh hoat hoa + tieu de chang ---
+// --- Banner canh hoat hoa + tieu de chang (da thu gon chieu cao cho gon mat) ---
 function SceneBanner({ scene, badge, title, subtitle }) {
   return (
-    <div className="relative rounded-2xl overflow-hidden shadow-lg mb-6 h-44 md:h-56">
+    <div className="relative rounded-2xl overflow-hidden shadow-md mb-5 h-24 md:h-32">
       <SceneArt scene={scene} className="absolute inset-0" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-      <div className="absolute bottom-0 left-0 p-5 md:p-6 text-white">
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
+      <div className="absolute bottom-0 left-0 p-3.5 md:p-4 text-white">
         {badge && (
-          <span className="inline-block bg-white/20 backdrop-blur text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded mb-2">
+          <span className="inline-block bg-white/20 backdrop-blur text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded mb-1">
             {badge}
           </span>
         )}
-        <h2 className="text-2xl md:text-3xl font-bold drop-shadow">{title}</h2>
-        {subtitle && <p className="text-white/85 text-sm md:text-base">{subtitle}</p>}
+        <h2 className="text-lg md:text-2xl font-bold drop-shadow leading-tight">{title}</h2>
+        {subtitle && <p className="text-white/85 text-xs md:text-sm">{subtitle}</p>}
+      </div>
+    </div>
+  );
+}
+
+// --- Banner dang VIDEO: thay cho SceneBanner SVG o nhung chang co clip minh hoa.
+// Video tu phat (muted) khi vao chang -> truyen tai boi canh thay cho mo ta bang chu.
+// Co controls de nguoi hoc bat tieng / xem lai. Tieu de chang nam o thanh duoi.
+function VideoScene({ src, badge, title, subtitle }) {
+  return (
+    <div className="rounded-2xl overflow-hidden shadow-md mb-5 bg-black">
+      <div className="relative">
+        <video
+          src={src}
+          controls
+          autoPlay
+          muted
+          playsInline
+          preload="metadata"
+          className="w-full aspect-video bg-black"
+        />
+        {badge && (
+          <span className="absolute top-3 left-3 inline-block bg-black/55 backdrop-blur text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded pointer-events-none">
+            {badge}
+          </span>
+        )}
+      </div>
+      <div className="bg-gradient-to-r from-red-900 to-red-800 px-4 md:px-5 py-2.5 text-white">
+        <h2 className="text-base md:text-xl font-bold leading-tight">{title}</h2>
+        {subtitle && <p className="text-white/80 text-xs md:text-sm">{subtitle}</p>}
       </div>
     </div>
   );
@@ -317,7 +348,7 @@ function CognitiveStage({ onComplete }) {
 
   return (
     <div>
-      <SceneBanner scene={R.scene} badge={R.badge} title={R.title} subtitle={R.subtitle} />
+      <VideoScene src={primitiveSituationVideo} badge={R.badge} title={R.title} subtitle={R.subtitle} />
 
       {phase === 0 && (
         <div className="bg-gray-50 rounded-2xl border border-gray-200 p-5 md:p-6">

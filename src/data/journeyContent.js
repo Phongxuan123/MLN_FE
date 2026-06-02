@@ -88,12 +88,12 @@ export const ROUND_COGNITIVE = {
   subtitle: "Nguồn gốc nhận thức",
   pieceLabel: "NGUỒN GỐC NHẬN THỨC",
 
-  // Mo canh — Sophia ke so luoc boi canh (ngan gon), roi NPC dat van de.
-  // Nguoi hoc dong vai mot thanh vien bo toc co dai.
+  // Mo canh — boi canh da duoc the hien qua VIDEO o tren (VideoScene).
+  // Phan thoai chi con dan dat nhap vai + dat van de. Nguoi hoc dong vai mot
+  // thanh vien bo toc co dai.
   setup: [
-    { who: "guide", text: "Bối cảnh: bạn là một người trẻ trong bộ tộc cổ đại. Một trận động đất vừa giáng xuống — mùa màng tan hoang, cả làng hoảng loạn." },
     { who: "elder", text: "Tai họa này từ đâu mà ra?! Hỡi người trẻ kia, hãy giải thích cho cả bộ tộc!" },
-    { who: "guide", text: "Hãy quên kiến thức hiện đại đi, đặt mình vào tâm trí người cổ đại. Bạn sẽ giải thích thế nào?" },
+    { who: "guide", text: "Bạn vừa chứng kiến tất cả. Hãy quên kiến thức hiện đại đi, đặt mình vào tâm trí người cổ đại — bạn sẽ giải thích thế nào?" },
   ],
 
   // Cau hoi 1: nguoi hoc dong vai thanh vien bo toc, giai thich bang TU DUY HUYEN THOAI.
