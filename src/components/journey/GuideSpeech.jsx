@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Avatar } from "./JourneyArt";
 import { CHARACTERS } from "../../data/journeyContent";
-import { TYPEWRITER_SPEED_MS } from "../../constants";
+import { TYPEWRITER_SPEED_MS, NPC_REVEAL_DELAY_MS } from "../../constants";
 
 // ============================================================================
 // HE THONG HOI THOAI cho bai hoc tuong tac.
@@ -88,12 +88,16 @@ function SpeechBubble({ who, text, animate, onTypingDone }) {
   );
 }
 
-// Chuoi hoi thoai phat lan luot. Nguoi hoc bam "Tiep" de hien dong tiep theo.
-// Khi da hien het -> goi onComplete() de cha hien UI buoc ke (cau hoi, nut...).
-export default function DialogueSequence({ lines, onComplete, ctaLabel = "Tiếp tục" }) {
+// Chuoi hoi thoai phat lan luot.
+// MAC DINH autoPlay = true: cac dong thoai TU DONG hien lan luot (sau khi go xong
+// 1 dong, tu cho NPC_REVEAL_DELAY_MS roi hien dong ke) -> nguoi hoc khong phai
+// bam "Tiep" cho tung cau (giam tuong tac). Bam vao bong bong de go nhanh het cau.
+// Khi het thoai -> hien 1 nut CTA duy nhat de di tiep (diem tuong tac chu chot).
+export default function DialogueSequence({ lines, onComplete, ctaLabel = "Tiếp tục", autoPlay = true }) {
   const [visibleCount, setVisibleCount] = useState(1);
   const [currentTypingDone, setCurrentTypingDone] = useState(false);
   const scrollAnchorRef = useRef(null);
+  const advanceTimerRef = useRef(null);
 
   const isLastVisible = visibleCount >= lines.length;
   const allDone = isLastVisible && currentTypingDone;
@@ -109,12 +113,19 @@ export default function DialogueSequence({ lines, onComplete, ctaLabel = "Tiếp
     setCurrentTypingDone(false);
   }, [lines]);
 
-  const handleNext = () => {
-    if (!isLastVisible) {
-      setCurrentTypingDone(false);
-      setVisibleCount((c) => c + 1);
+  const showNextLine = useCallback(() => {
+    setCurrentTypingDone(false);
+    setVisibleCount((c) => c + 1);
+  }, []);
+
+  // Tu dong chuyen sang dong thoai ke khi dong hien tai da go xong
+  useEffect(() => {
+    clearTimeout(advanceTimerRef.current);
+    if (autoPlay && currentTypingDone && !isLastVisible) {
+      advanceTimerRef.current = setTimeout(showNextLine, NPC_REVEAL_DELAY_MS);
     }
-  };
+    return () => clearTimeout(advanceTimerRef.current);
+  }, [autoPlay, currentTypingDone, isLastVisible, showNextLine]);
 
   return (
     <div>
@@ -136,15 +147,17 @@ export default function DialogueSequence({ lines, onComplete, ctaLabel = "Tiếp
 
       <div className="mt-5 flex justify-end">
         {!allDone ? (
-          <button
-            type="button"
-            onClick={handleNext}
-            disabled={!currentTypingDone}
-            className="inline-flex items-center gap-1.5 bg-gray-800 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-gray-900 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-          >
-            Tiếp
-            <span className="material-symbols-outlined text-base">arrow_forward</span>
-          </button>
+          !autoPlay && (
+            <button
+              type="button"
+              onClick={showNextLine}
+              disabled={!currentTypingDone || isLastVisible}
+              className="inline-flex items-center gap-1.5 bg-gray-800 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-gray-900 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              Tiếp
+              <span className="material-symbols-outlined text-base">arrow_forward</span>
+            </button>
+          )
         ) : (
           <button
             type="button"

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useToast } from "../components/Toast";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { SceneArt } from "../components/journey/JourneyArt";
@@ -302,10 +302,18 @@ function IntroStage({ onComplete }) {
 // ============================================================================
 function CognitiveStage({ onComplete }) {
   const R = ROUND_COGNITIVE;
+  // phase: 0 dan thoai (Sophia ke boi canh) · 1 cau hoi nhap vai · 2 buoc ngoat · 3 cau hoi chot · 4 duc ket
   const [phase, setPhase] = useState(0);
   const [revealedSteps, setRevealedSteps] = useState(1);
 
   const allStepsShown = revealedSteps >= R.conclusion.steps.length;
+
+  // Duc ket TU DONG mo lan luot tung buoc (giam tuong tac — khong phai bam tay)
+  useEffect(() => {
+    if (phase !== 4 || allStepsShown) return;
+    const t = setTimeout(() => setRevealedSteps((c) => c + 1), 1100);
+    return () => clearTimeout(t);
+  }, [phase, revealedSteps, allStepsShown]);
 
   return (
     <div>
@@ -372,14 +380,10 @@ function CognitiveStage({ onComplete }) {
           </div>
 
           {!allStepsShown ? (
-            <button
-              type="button"
-              onClick={() => setRevealedSteps((c) => c + 1)}
-              className="mt-4 inline-flex items-center gap-1.5 bg-gray-800 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-gray-900 transition-colors"
-            >
-              Mở bước tiếp theo
-              <span className="material-symbols-outlined text-base">expand_more</span>
-            </button>
+            <p className="mt-4 text-sm text-gray-400 inline-flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-base animate-pulse">more_horiz</span>
+              Đang đúc kết…
+            </p>
           ) : (
             <div className="mt-5">
               <PieceReward label={R.pieceLabel} onNext={() => onComplete("cognitive")} />
@@ -498,6 +502,7 @@ function ChainGame({ chain, onSuccess }) {
 
 function SocialStage({ onComplete }) {
   const R = ROUND_SOCIAL;
+  // phase: 0 dan thoai (Sophia ke boi canh) · 1 nhap 2 vai · 2 cau hoi cot loi · 3 canh bao · 4 mini-game chuoi
   const [phase, setPhase] = useState(0);
   const [roleIndex, setRoleIndex] = useState(0);
 

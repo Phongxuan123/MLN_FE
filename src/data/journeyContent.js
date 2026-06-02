@@ -88,10 +88,12 @@ export const ROUND_COGNITIVE = {
   subtitle: "Nguồn gốc nhận thức",
   pieceLabel: "NGUỒN GỐC NHẬN THỨC",
 
-  // Mo canh
+  // Mo canh — Sophia ke so luoc boi canh (ngan gon), roi NPC dat van de.
+  // Nguoi hoc dong vai mot thanh vien bo toc co dai.
   setup: [
-    { who: "guide", text: "Một trận động đất kinh hoàng vừa giáng xuống. Mùa màng tan hoang, dân làng hoảng loạn." },
-    { who: "elder", text: "Trời đất ơi! Tai họa này từ đâu mà ra? Mau cho ta một lời giải thích!" },
+    { who: "guide", text: "Bối cảnh: bạn là một người trẻ trong bộ tộc cổ đại. Một trận động đất vừa giáng xuống — mùa màng tan hoang, cả làng hoảng loạn." },
+    { who: "elder", text: "Tai họa này từ đâu mà ra?! Hỡi người trẻ kia, hãy giải thích cho cả bộ tộc!" },
+    { who: "guide", text: "Hãy quên kiến thức hiện đại đi, đặt mình vào tâm trí người cổ đại. Bạn sẽ giải thích thế nào?" },
   ],
 
   // Cau hoi 1: nguoi hoc dong vai thanh vien bo toc, giai thich bang TU DUY HUYEN THOAI.
@@ -184,10 +186,10 @@ export const ROUND_SOCIAL = {
   subtitle: "Nguồn gốc xã hội",
   pieceLabel: "NGUỒN GỐC XÃ HỘI",
 
+  // Mo canh — Sophia ke so luoc boi canh (ngan gon) roi moi nguoi hoc nhap vai.
   setup: [
-    { who: "guide", text: "Thời gian trôi đi. Chế độ cộng sản nguyên thủy tan rã." },
-    { who: "guide", text: "Công cụ bằng đồng và sắt xuất hiện, của cải bắt đầu DƯ THỪA. Xã hội phân chia thành giai cấp: Chủ nô và Nô lệ." },
-    { who: "guide", text: "Hãy thử sống MỘT NGÀY trong hai vai khác nhau để cảm nhận sự khác biệt nhé." },
+    { who: "guide", text: "Bối cảnh: nhiều thế hệ trôi qua, con người biết rèn đồng, rèn sắt. Của cải bắt đầu dư thừa, xã hội phân chia thành Chủ nô và Nô lệ." },
+    { who: "guide", text: "Để hiểu ai mới đủ điều kiện làm triết học, hãy thử sống MỘT NGÀY trong hai vai khác nhau nhé." },
   ],
 
   // Trai nghiem 2 vai lan luot — moi vai 1 lua chon nho minh hoa quy thoi gian/dieu kien
