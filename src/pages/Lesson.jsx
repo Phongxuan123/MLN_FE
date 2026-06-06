@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import PageShell from "../components/PageShell";
 import LessonMindmap from "../components/LessonMindmap";
 import PhilosophyJourney from "./PhilosophyJourney";
-import { findLessonBySlug } from "../data/mindmapData";
+import { findLessonBySlug, findNextLesson } from "../data/mindmapData";
 
 // ============================================================================
 // TRANG BAI HOC
@@ -98,7 +98,10 @@ const Lesson = () => {
               </button>
 
               {isJourney ? (
-                <PhilosophyJourney />
+                <PhilosophyJourney
+                  nextLesson={findNextLesson(activeLesson.slug)}
+                  onNextLesson={(slug) => handleOpenLesson(slug)}
+                />
               ) : (
                 <ComingSoon title={activeLesson.title} onBack={handleBackToMindmap} />
               )}

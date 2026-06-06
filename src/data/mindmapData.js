@@ -121,3 +121,10 @@ export const ALL_LESSONS = MINDMAP_CHAPTERS.flatMap((chapter) =>
 // Tra cứu 1 bài học theo slug; trả về null nếu không tồn tại
 export const findLessonBySlug = (slug) =>
   ALL_LESSONS.find((lesson) => lesson.slug === slug) || null;
+
+// Tra cứu bài học KẾ TIẾP theo thứ tự phẳng; trả về null nếu là bài cuối
+export const findNextLesson = (slug) => {
+  const index = ALL_LESSONS.findIndex((lesson) => lesson.slug === slug);
+  if (index === -1 || index >= ALL_LESSONS.length - 1) return null;
+  return ALL_LESSONS[index + 1];
+};

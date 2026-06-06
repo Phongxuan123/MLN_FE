@@ -59,11 +59,7 @@ export const INTRO = {
   subtitle: "Thế kỷ VIII – VI trước Công nguyên",
   // Lời dẫn tuần tự cua nhan vat dan duong
   lines: [
-    "Chào mừng nhà du hành! Mình là Sophia — người sẽ đồng hành cùng bạn.",
-    "Chúng ta vừa quay ngược kim đồng hồ về thế kỷ VIII – VI trước Công nguyên.",
-    "Bạn không còn là người của thế kỷ XXI nữa. Quanh ta, các nền văn minh lớn đang bừng nở: Hy Lạp, Ấn Độ, Trung Hoa.",
-    "Nhiệm vụ của bạn: đi tìm một thứ 'vũ khí tư duy' hoàn toàn mới — có tên là TRIẾT HỌC.",
-    "Nhưng để tìm thấy nó, ta phải vượt qua 2 thử thách, đại diện cho 2 NGUỒN GỐC khai sinh ra triết học.",
+    "Nhiệm vụ của bạn: đi tìm một thứ 'vũ khí tư duy' hoàn toàn mới — có tên là TRIẾT HỌC. Nhưng để tìm thấy nó, ta phải vượt qua 2 thử thách, đại diện cho 2 NGUỒN GỐC khai sinh ra triết học.",
   ],
   // Diem khoi hanh de nguoi hoc chon (mang tinh nhap vai, khong cham diem)
   startPoints: [
@@ -93,32 +89,36 @@ export const ROUND_COGNITIVE = {
   // thanh vien bo toc co dai.
   setup: [
     { who: "elder", text: "Tai họa này từ đâu mà ra?! Hỡi người trẻ kia, hãy giải thích cho cả bộ tộc!" },
-    { who: "guide", text: "Bạn vừa chứng kiến tất cả. Hãy quên kiến thức hiện đại đi, đặt mình vào tâm trí người cổ đại — bạn sẽ giải thích thế nào?" },
   ],
 
-  // Cau hoi 1: nguoi hoc dong vai thanh vien bo toc, giai thich bang TU DUY HUYEN THOAI.
-  // Co chu dich: ca 3 dap an deu la cach giai thich huyen thoai -> khong co dap an "sai",
-  // muc dich la cho nguoi hoc NHAP vao loi tu duy cua nguoi nguyen thuy.
+  // Cau hoi 1 (cham diem): rut ra tu video — cach nguoi co dai giai thich hien tuong tu nhien.
+  // Dap an dung: A (tu duy than thoai / sieu nhien) -> dat nen cho NGUON GOC NHAN THUC.
   myth: {
     prompt:
-      "Bạn là một thành viên trong bộ tộc cổ đại. Theo lối tư duy thời ấy, bạn giải thích trận động đất này thế nào?",
+      "Con người thời cổ đại thường dùng cách nào để giải thích về các hiện tượng tự nhiên lớn (như mưa giông, sấm chớp, động đất)?",
     options: [
-      { text: "Thần Biển Poseidon nổi giận và rung chuyển mặt đất.", reaction: "Một lời giải bằng thần thoại." },
-      { text: "Bộ tộc đã làm điều gì xúc phạm thần linh nên bị trừng phạt.", reaction: "Quy mọi việc cho ý muốn thần thánh." },
-      { text: "Linh hồn lòng đất đang giận dữ đòi vật tế.", reaction: "Vẫn là cách lý giải bằng niềm tin siêu nhiên." },
+      {
+        text: "Cho rằng đó là sự giận dữ hoặc ý chí của các vị thần linh siêu nhiên.",
+        correct: true,
+      },
+      {
+        text: "Dựa vào các quy luật khoa học và sự vận động của Trái Đất để chứng minh.",
+        correct: false,
+      },
+      {
+        text: "Xem đó là những hiện tượng ngẫu nhiên, không có nguyên nhân hay ý nghĩa gì.",
+        correct: false,
+      },
     ],
-    // Du chon dap an nao, he thong cung dan toi cung mot ket luan
-    afterAny:
-      "Dù chọn cách nào, tất cả đều có điểm chung: con người thời ấy giải thích thế giới bằng THẦN THOẠI và TÍN NGƯỠNG. Đây chính là hình thức 'triết lý' đầu tiên của loài người.",
-    solutionPrompt: "Vậy theo tư duy đó, giải pháp của bộ tộc sẽ là gì?",
-    solution: "Tổ chức tế lễ, cúng bái để xoa dịu thần linh.",
+    correctFeedback:
+      "Chính xác! Khi chưa có tri thức khoa học, con người cổ đại giải thích mọi hiện tượng tự nhiên bằng THẦN THOẠI và TÍN NGƯỠNG — coi đó là ý chí hay cơn thịnh nộ của thần linh. Đây chính là hình thức 'triết lý' sơ khai đầu tiên của loài người.",
+    wrongFeedback:
+      "Chưa đúng. Hãy nhớ bối cảnh trong video: thời cổ đại CHƯA có khoa học để chứng minh (loại đáp án B), và con người luôn khao khát tìm nguyên nhân chứ không xem mọi việc là ngẫu nhiên vô nghĩa (loại đáp án C). Họ giải thích tự nhiên bằng niềm tin vào thần linh siêu nhiên.",
   },
 
   // Buoc ngoat: NPC hoai nghi xuat hien tao mau thuan
   twist: [
-    { who: "skeptic", text: "Khoan đã! Năm ngoái chúng ta đã tế tới 10 con cừu cho thần linh..." },
-    { who: "skeptic", text: "...vậy mà năm nay động đất VẪN xảy ra. Lễ vật chẳng thay đổi được gì cả." },
-    { who: "skeptic", text: "Liệu có phải dưới lòng đất tồn tại một QUY LUẬT tự nhiên nào đó — không hề phụ thuộc vào tâm trạng của các vị thần?" },
+    { who: "skeptic", text: "Trời ơi, sao số phận chúng ta khổ thế này! Mưa giông, lũ lụt, hạn hán rồi động đất... năm nào cũng ập tới. Chúng ta đã quỳ lạy, đã tế bao nhiêu lễ vật cho thần linh, vậy mà thiên tai VẪN cứ giáng xuống, chẳng gì đổi thay. Lẽ nào chúng ta mãi mãi bất lực, hay có điều gì khác mà chúng ta chưa biết về thiên nhiên, chẳng hề phụ thuộc vào tâm trạng của các vị thần?" },
   ],
 
   // Cau hoi 2: nguoi hoc tra loi nguoi hoai nghi -> chot duoc su chuyen dich tu duy
@@ -182,13 +182,13 @@ export const ROUND_SOCIAL = {
   id: "social",
   scene: "society",
   badge: "Thử thách 2 / 2",
-  title: "Đại hội bộ tộc",
+  title: "...khi phương thức sản xuất thay đổi...",
   subtitle: "Nguồn gốc xã hội",
   pieceLabel: "NGUỒN GỐC XÃ HỘI",
 
   // Mo canh — Sophia ke so luoc boi canh (ngan gon) roi moi nguoi hoc nhap vai.
   setup: [
-    { who: "guide", text: "Bối cảnh: nhiều thế hệ trôi qua, con người biết rèn đồng, rèn sắt. Của cải bắt đầu dư thừa, xã hội phân chia thành Chủ nô và Nô lệ." },
+    { who: "guide", text: "Bối cảnh: nhiều thế hệ trôi qua, khi phương thức sản xuất thay đổi — con người biết rèn đồng, rèn sắt, của cải bắt đầu dư thừa — xã hội phân chia thành Chủ nô và Nô lệ." },
     { who: "guide", text: "Để hiểu ai mới đủ điều kiện làm triết học, hãy thử sống MỘT NGÀY trong hai vai khác nhau nhé." },
   ],
 
@@ -239,9 +239,12 @@ export const ROUND_SOCIAL = {
       "Hãy nhớ lại trải nghiệm vừa rồi: chỉ tầng lớp có của cải dư thừa và thời gian rảnh (lao động trí óc) mới đủ điều kiện làm việc đó.",
   },
 
-  // Loi canh bao cot loi
-  warning:
-    "Ghi nhớ: Triết học KHÔNG THỂ ra đời trong một xã hội mông muội, dã man. Nó đòi hỏi những điều kiện xã hội ngặt nghèo.",
+  // Loi canh bao cot loi — tach thanh 3 y nho cho de doc (render duoi dang danh sach)
+  warning: [
+    "Triết học KHÔNG THỂ ra đời trong một xã hội mông muội, dã man. Nó chỉ ra đời khi xã hội đạt đến một trình độ tương đối cao của sản xuất xã hội, phân công lao động xã hội hình thành, giai cấp phân hóa rõ và mạnh, nhà nước ra đời.",
+    "Tầng lớp tri thức xuất hiện đóng vai trò quan trọng trong việc hệ thống hóa toàn bộ tri thức của thời đại để xây dựng nên các học thuyết, lý luận, triết thuyết.",
+    "Triết học, ngay từ khi xuất hiện đã mang trong mình tính giai cấp sâu sắc.",
+  ],
 
   // Mini-game: sap xep chuoi nhan qua dung thu tu -> mo khoa NGUON GOC XA HOI
   chain: {
@@ -272,6 +275,7 @@ export const ROUND_SUMMARY = {
       id: "cognitive",
       title: "Nguồn gốc nhận thức",
       icon: "psychology",
+      tagline: "Nhu cầu hiểu biết thế giới → tư duy lý luận thay thế huyền thoại.",
       points: [
         "Nhu cầu tự nhiên: hiểu biết thế giới.",
         "Tư duy huyền thoại → tư duy trừu tượng, khái quát.",
@@ -283,6 +287,7 @@ export const ROUND_SUMMARY = {
       id: "social",
       title: "Nguồn gốc xã hội",
       icon: "groups",
+      tagline: "Điều kiện xã hội chín muồi → tầng lớp trí thức ra đời.",
       points: [
         "Sản xuất phát triển, tư hữu & giai cấp xuất hiện.",
         "Lao động trí óc tách khỏi lao động chân tay.",
@@ -293,6 +298,9 @@ export const ROUND_SUMMARY = {
   ],
   center: "TRIẾT HỌC RA ĐỜI",
   centerNote: "Thế kỷ VIII – VI TCN, ở cả phương Đông và phương Tây",
+  // Cau dúc ket hoan chinh — hien khi nguoi hoc ghep 2 manh lai voi nhau
+  finalStatement:
+    "Triết học ra đời từ sự HỢP NHẤT của hai nguồn gốc: NHU CẦU NHẬN THỨC thế giới của con người và những ĐIỀU KIỆN XÃ HỘI chín muồi — phân công lao động, giai cấp, và sự xuất hiện của tầng lớp trí thức.",
   guideLines: [
     "Chúc mừng nhà du hành! Bạn đã ghép xong bức tranh hoàn chỉnh.",
     "Triết học không từ trên trời rơi xuống. Nó nảy sinh từ chính NHU CẦU HIỂU BIẾT của con người (nguồn gốc nhận thức)...",
