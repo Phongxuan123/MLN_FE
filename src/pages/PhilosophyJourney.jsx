@@ -912,20 +912,31 @@ function FinalQuizStage({ onComplete }) {
 function CompletionStage({ score, onReplay, nextLesson, onNextLesson }) {
   const total = JOURNEY_FINAL_QUIZ.length;
   return (
-    <div className="bg-gradient-to-br from-indigo-900 via-purple-900 to-fuchsia-900 rounded-2xl shadow-xl p-8 text-white text-center relative overflow-hidden">
-      <div className="absolute -right-16 -top-16 w-56 h-56 bg-fuchsia-500/20 rounded-full blur-3xl" />
-      <div className="relative">
-        <div className="inline-flex flex-col items-center j-unlock">
-          <div className="h-24 w-24 rounded-full bg-gradient-to-br from-amber-300 to-orange-500 flex items-center justify-center shadow-2xl">
-            <span className="material-symbols-outlined text-5xl text-white">military_tech</span>
-          </div>
-          <p className="text-xs uppercase tracking-widest text-amber-200 mt-3 font-bold">Huy hiệu đạt được</p>
-          <h2 className="text-3xl font-bold mt-1">{COMPLETION.badge}</h2>
-          <p className="text-white/70 text-sm">{COMPLETION.badgeNote}</p>
+    <div className="relative overflow-hidden rounded-3xl shadow-xl bg-gradient-to-br from-[#0A3CA0] via-[#062E81] to-[#041C52] text-white text-center">
+      {/* Hoa tiet nen — vong tron mo, tao chieu sau */}
+      <div className="absolute -right-20 -top-20 w-72 h-72 bg-blue-400/25 rounded-full blur-3xl" />
+      <div className="absolute -left-16 -bottom-16 w-64 h-64 bg-amber-300/15 rounded-full blur-3xl" />
+
+      <div className="relative p-8 md:p-10">
+        {/* Bang chung hoan thanh */}
+        <div className="inline-flex items-center gap-1.5 bg-white/15 border border-white/25 backdrop-blur px-4 py-1.5 rounded-full text-sm font-bold mb-6">
+          <span className="material-symbols-outlined text-base">verified</span>
+          Hoàn thành hành trình
         </div>
 
-        <div className="bg-white/10 backdrop-blur rounded-xl p-4 mt-6 inline-block">
-          <p className="text-sm text-white/80">Kết quả kiểm tra</p>
+        {/* Huy hieu */}
+        <div className="flex flex-col items-center j-unlock">
+          <div className="h-24 w-24 rounded-full bg-gradient-to-br from-amber-300 to-orange-500 flex items-center justify-center shadow-2xl ring-4 ring-white/25">
+            <span className="material-symbols-outlined text-5xl text-white">military_tech</span>
+          </div>
+          <p className="text-xs uppercase tracking-widest text-blue-100 mt-4 font-bold">Huy hiệu đạt được</p>
+          <h2 className="text-3xl font-bold mt-1">{COMPLETION.badge}</h2>
+          <p className="text-white/75 text-sm">{COMPLETION.badgeNote}</p>
+        </div>
+
+        {/* Ket qua kiem tra */}
+        <div className="bg-white/12 border border-white/20 backdrop-blur rounded-2xl px-6 py-4 mt-6 inline-block">
+          <p className="text-sm text-blue-50/90">Kết quả kiểm tra</p>
           <p className="text-2xl font-bold tabular-nums">{score}/{total} câu đúng ngay lần đầu</p>
         </div>
 
@@ -936,11 +947,11 @@ function CompletionStage({ score, onReplay, nextLesson, onNextLesson }) {
           <footer className="text-sm text-amber-200 not-italic mt-1">— {COMPLETION.quote.author}</footer>
         </blockquote>
 
-        <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <button
             type="button"
             onClick={onReplay}
-            className="inline-flex items-center gap-1.5 bg-white/15 border border-white/30 text-white px-6 py-3 rounded-lg font-bold hover:bg-white/25 transition-colors"
+            className="inline-flex items-center gap-1.5 bg-white/15 border border-white/30 text-white px-6 py-3 rounded-xl font-bold hover:bg-white/25 transition-colors active:scale-95"
           >
             <span className="material-symbols-outlined text-base">replay</span>
             Chơi lại hành trình
@@ -950,7 +961,7 @@ function CompletionStage({ score, onReplay, nextLesson, onNextLesson }) {
             <button
               type="button"
               onClick={() => onNextLesson?.(nextLesson.slug)}
-              className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-orange-500 text-white px-6 py-3 rounded-lg font-bold hover:from-amber-500 hover:to-orange-600 transition-colors shadow-lg active:scale-95"
+              className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-300 to-orange-400 text-blue-950 px-6 py-3 rounded-xl font-bold hover:from-amber-400 hover:to-orange-500 transition-colors shadow-lg active:scale-95"
             >
               Bài học tiếp theo
               <span className="material-symbols-outlined text-base">arrow_forward</span>
