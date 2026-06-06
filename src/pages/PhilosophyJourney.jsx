@@ -4,6 +4,8 @@ import useLocalStorage from "../hooks/useLocalStorage";
 import { SceneArt } from "../components/journey/JourneyArt";
 import DialogueSequence, { SpeechBubble } from "../components/journey/GuideSpeech";
 import primitiveSituationVideo from "../video/primitive-situation.mp4";
+import introVideo from "../video/Video mở đầu.mp4";
+import socialVideo from "../video/Video mở đầu (xã hội).mp4";
 import {
   INTRO,
   ROUND_COGNITIVE,
@@ -40,7 +42,7 @@ const STAGE_LABELS = {
   done: "Hoàn thành",
 };
 
-const INITIAL_STATE = { stage: "intro", pieces: [], startPoint: null, score: null };
+const INITIAL_STATE = { stage: "intro", pieces: [], startPoint: null, score: null, merged: false };
 
 // --- Tao className cho 1 dap an dua tren trang thai (dung chung moi cau hoi) ---
 function getOptionClass({ resolved, picked, isCorrect, isWrongPick }) {
@@ -97,7 +99,7 @@ function GradedQuestion({ prompt, options, correctFeedback, wrongFeedback, onPas
       </div>
 
       {!solved && wrongPicks.length > 0 && (
-        <div className="mt-4 bg-red-50 border border-red-200 text-red-800 p-3 rounded-lg text-sm flex items-start gap-2 j-bubble-in">
+        <div className="mt-4 bg-red-50 border border-red-200 text-red-800 p-3 rounded-lg text-base flex items-start gap-2 j-bubble-in">
           <span className="material-symbols-outlined text-base shrink-0">error</span>
           <span>{wrongFeedback}</span>
         </div>
@@ -109,72 +111,13 @@ function GradedQuestion({ prompt, options, correctFeedback, wrongFeedback, onPas
             <span className="material-symbols-outlined text-base">lightbulb</span>
             Chính xác!
           </p>
-          <p className="text-sm text-green-900/90 leading-relaxed">{correctFeedback}</p>
+          <p className="text-base text-green-900/90 leading-relaxed">{correctFeedback}</p>
           <button
             type="button"
             onClick={onPass}
             className="mt-4 inline-flex items-center gap-1.5 bg-red-800 text-white px-5 py-2.5 rounded-lg font-bold hover:bg-red-900 transition-colors"
           >
             {passLabel}
-            <span className="material-symbols-outlined text-base">arrow_forward</span>
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ============================================================================
-// CAU HOI MO — moi lua chon deu hop le (dung de nhap vai tu duy huyen thoai).
-// ============================================================================
-function OpenChoice({ prompt, options, afterText, footer, onContinue, continueLabel = "Tiếp tục" }) {
-  const [picked, setPicked] = useState(null);
-  const resolved = picked !== null;
-
-  return (
-    <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6">
-      <p className="font-semibold text-lg mb-4 text-gray-900">{prompt}</p>
-      <div className="space-y-2.5">
-        {options.map((opt, index) => (
-          <button
-            key={index}
-            type="button"
-            disabled={resolved}
-            onClick={() => setPicked(index)}
-            className={getOptionClass({
-              resolved,
-              isCorrect: index === picked,
-              isWrongPick: false,
-            })}
-          >
-            <span className="material-symbols-outlined text-xl shrink-0">
-              {index === picked ? "trip_origin" : "radio_button_unchecked"}
-            </span>
-            {opt.text}
-          </button>
-        ))}
-      </div>
-
-      {resolved && (
-        <div className="mt-4 bg-amber-50 border border-amber-200 p-4 rounded-lg j-bubble-in">
-          <p className="text-sm text-amber-900 font-semibold mb-1">
-            <span className="material-symbols-outlined align-middle text-base mr-1">
-              psychology_alt
-            </span>
-            {options[picked].reaction}
-          </p>
-          <p className="text-sm text-amber-900/90 leading-relaxed">{afterText}</p>
-          {footer && (
-            <div className="mt-3 bg-white border border-amber-200 rounded-lg p-3 text-sm text-gray-700">
-              {footer}
-            </div>
-          )}
-          <button
-            type="button"
-            onClick={onContinue}
-            className="mt-4 inline-flex items-center gap-1.5 bg-red-800 text-white px-5 py-2.5 rounded-lg font-bold hover:bg-red-900 transition-colors"
-          >
-            {continueLabel}
             <span className="material-symbols-outlined text-base">arrow_forward</span>
           </button>
         </div>
@@ -205,15 +148,20 @@ function SceneBanner({ scene, badge, title, subtitle }) {
 // --- Banner dang VIDEO: thay cho SceneBanner SVG o nhung chang co clip minh hoa.
 // Video tu phat (muted) khi vao chang -> truyen tai boi canh thay cho mo ta bang chu.
 // Co controls de nguoi hoc bat tieng / xem lai. Tieu de chang nam o thanh duoi.
-function VideoScene({ src, badge, title, subtitle }) {
+function VideoScene({ src, badge, title, subtitle, muted = true, autoPlay = true }) {
   return (
     <div className="rounded-2xl overflow-hidden shadow-md mb-5 bg-black">
       <div className="relative">
         <video
+          // React khong phai luc nao cung set dung DOM property `muted` qua JSX attribute,
+          // nen set truc tiep qua ref de dam bao video co tieng khi muted=false.
+          ref={(el) => {
+            if (el) el.muted = muted;
+          }}
           src={src}
           controls
-          autoPlay
-          muted
+          autoPlay={autoPlay}
+          loop
           playsInline
           preload="metadata"
           className="w-full aspect-video bg-black"
@@ -267,7 +215,7 @@ function IntroStage({ onComplete }) {
 
   return (
     <div>
-      <SceneBanner scene={INTRO.scene} badge={INTRO.subtitle} title={INTRO.title} />
+      <VideoScene src={introVideo} badge={INTRO.subtitle} title={INTRO.title} />
       {phase === 0 && (
         <div className="bg-gray-50 rounded-2xl border border-gray-200 p-5 md:p-6">
           <DialogueSequence
@@ -352,21 +300,18 @@ function CognitiveStage({ onComplete }) {
 
       {phase === 0 && (
         <div className="bg-gray-50 rounded-2xl border border-gray-200 p-5 md:p-6">
-          <DialogueSequence lines={R.setup} onComplete={() => setPhase(1)} ctaLabel="Tôi sẽ trả lời" />
+          <DialogueSequence lines={R.setup} onComplete={() => setPhase(1)} ctaLabel="Trả lời" />
         </div>
       )}
 
       {phase === 1 && (
-        <OpenChoice
+        <GradedQuestion
           prompt={R.myth.prompt}
           options={R.myth.options}
-          afterText={R.myth.afterAny}
-          footer={
-            <>
-              <strong className="text-red-800">{R.myth.solutionPrompt}</strong> {R.myth.solution}
-            </>
-          }
-          onContinue={() => setPhase(2)}
+          correctFeedback={R.myth.correctFeedback}
+          wrongFeedback={R.myth.wrongFeedback}
+          onPass={() => setPhase(2)}
+          passLabel="Tiếp tục"
         />
       )}
 
@@ -549,11 +494,18 @@ function SocialStage({ onComplete }) {
 
   return (
     <div>
-      <SceneBanner scene={R.scene} badge={R.badge} title={R.title} subtitle={R.subtitle} />
+      <VideoScene src={socialVideo} badge={R.badge} title={R.title} subtitle={R.subtitle} />
 
       {phase === 0 && (
-        <div className="bg-gray-50 rounded-2xl border border-gray-200 p-5 md:p-6">
-          <DialogueSequence lines={R.setup} onComplete={() => setPhase(1)} ctaLabel="Vào vai trải nghiệm" />
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={() => setPhase(1)}
+            className="inline-flex items-center gap-1.5 bg-red-800 text-white px-5 py-2.5 rounded-lg font-bold hover:bg-red-900 transition-colors"
+          >
+            Vào vai trải nghiệm
+            <span className="material-symbols-outlined text-base">arrow_forward</span>
+          </button>
         </div>
       )}
 
@@ -594,10 +546,20 @@ function SocialStage({ onComplete }) {
       {phase === 3 && (
         <div className="space-y-4">
           <div className="bg-amber-50 border-l-4 border-amber-500 rounded-r-xl p-4 j-bubble-in">
-            <p className="text-amber-900 font-semibold flex items-start gap-2">
+            <p className="text-amber-900 font-bold flex items-center gap-2 mb-2">
               <span className="material-symbols-outlined">warning</span>
-              {R.warning}
+              GHI NHỚ
             </p>
+            <ul className="space-y-2">
+              {R.warning.map((text, i) => (
+                <li key={i} className="flex items-start gap-2 text-amber-900 leading-relaxed">
+                  <span className="material-symbols-outlined text-base text-amber-600 mt-0.5 shrink-0">
+                    chevron_right
+                  </span>
+                  <span>{text}</span>
+                </li>
+              ))}
+            </ul>
           </div>
           <button
             type="button"
@@ -618,106 +580,212 @@ function SocialStage({ onComplete }) {
 // ============================================================================
 // CHANG 4 — HOP NHAT TRI THUC (lap rap so do)
 // ============================================================================
-function SummaryStage({ onComplete }) {
+// CHANG 4 — HOP NHAT: nguoi hoc da co du 2 manh ghep -> bam GHEP de tao duc ket hoan chinh.
+// Thao tac ghep co the thuc hien o day (main) hoac o Bang Hop Nhat ben phai (KnowledgePanel).
+function SummaryStage({ merged, onMerge, onComplete }) {
   const R = ROUND_SUMMARY;
-  const [connected, setConnected] = useState([]); // id nhanh da noi vao tam
-  const [showGuide, setShowGuide] = useState(false);
-  const allConnected = connected.length === R.branches.length;
 
-  const guideLines = useMemo(() => R.guideLines.map((text) => ({ who: "guide", text })), [R.guideLines]);
+  // Truoc khi ghep — moi goi nguoi hoc ghep 2 manh
+  if (!merged) {
+    return (
+      <div>
+        <SceneBanner scene={R.scene} badge="Hợp nhất tri thức" title={R.title} />
+        <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6 md:p-8 text-center">
+          <div className="inline-flex h-16 w-16 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white items-center justify-center shadow-lg j-glow">
+            <span className="material-symbols-outlined text-4xl">extension</span>
+          </div>
+          <h3 className="text-xl md:text-2xl font-bold text-red-900 mt-4">
+            Bạn đã thu thập đủ 2 mảnh ghép tri thức!
+          </h3>
+          <p className="text-gray-600 mt-2 max-w-lg mx-auto leading-relaxed">
+            Hãy ghép hai mảnh <strong>Nguồn gốc nhận thức</strong> và{" "}
+            <strong>Nguồn gốc xã hội</strong> lại với nhau để hé lộ bức tranh hoàn chỉnh về
+            nguồn gốc của Triết học.
+          </p>
+          <button
+            type="button"
+            onClick={onMerge}
+            className="mt-6 inline-flex items-center gap-2 bg-red-800 text-white px-7 py-3.5 rounded-xl font-bold text-lg hover:bg-red-900 transition-colors shadow-md active:scale-95"
+          >
+            <span className="material-symbols-outlined">join_full</span>
+            Ghép 2 mảnh tri thức
+          </button>
+          <p className="hidden lg:block text-xs text-gray-400 mt-4">
+            Mẹo: bạn cũng có thể bấm “Ghép” ngay tại Bảng Hợp Nhất bên phải →
+          </p>
+        </div>
+      </div>
+    );
+  }
 
-  const toggle = (id) => {
-    setConnected((prev) => (prev.includes(id) ? prev : [...prev, id]));
-  };
-
+  // Sau khi ghep — duc ket hoan chinh
   return (
     <div>
-      <SceneBanner scene={R.scene} badge="Tổng kết hành trình" title={R.title} />
-
-      {!showGuide ? (
-        <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6">
-          <p className="font-semibold text-gray-900 mb-1">
-            Nối hai mảnh ghép tri thức vào trung tâm để hoàn thiện bức tranh.
-          </p>
-          <p className="text-sm text-gray-500 mb-5">
-            Bấm vào từng nhánh nguồn gốc bạn đã mở khóa.
-          </p>
-
-          <div className="grid md:grid-cols-3 items-center gap-4">
-            {/* Nhanh trai */}
-            <BranchCard
-              branch={R.branches[0]}
-              connected={connected.includes(R.branches[0].id)}
-              onClick={() => toggle(R.branches[0].id)}
-            />
-
-            {/* Tam */}
-            <div className="text-center">
-              <div
-                className={`mx-auto rounded-2xl p-5 text-white bg-gradient-to-br from-red-700 to-red-900 shadow-lg transition-all ${
-                  allConnected ? "j-glow scale-105" : "opacity-80"
-                }`}
-              >
-                <span className="material-symbols-outlined text-4xl">hub</span>
-                <p className="font-bold text-lg mt-1">{R.center}</p>
-                <p className="text-xs text-white/80 mt-1">{R.centerNote}</p>
-              </div>
-              <p className="text-xs text-gray-400 mt-2">{connected.length}/{R.branches.length} nhánh đã nối</p>
-            </div>
-
-            {/* Nhanh phai */}
-            <BranchCard
-              branch={R.branches[1]}
-              connected={connected.includes(R.branches[1].id)}
-              onClick={() => toggle(R.branches[1].id)}
-            />
+      <SceneBanner scene={R.scene} badge="Đúc kết hoàn chỉnh" title={R.title} />
+      <div className="bg-gradient-to-br from-red-50 via-white to-amber-50 border border-red-100 rounded-2xl p-6 md:p-7 shadow-md j-unlock">
+        {/* Trung tam: Triet hoc ra doi */}
+        <div className="text-center">
+          <div className="inline-block rounded-2xl px-6 py-4 text-white bg-gradient-to-br from-red-700 to-red-900 shadow-lg j-glow">
+            <span className="material-symbols-outlined text-3xl">hub</span>
+            <p className="font-bold text-xl mt-1">{R.center}</p>
+            <p className="text-xs text-white/80 mt-0.5">{R.centerNote}</p>
           </div>
+        </div>
 
-          {allConnected && (
-            <div className="mt-6 text-center j-bubble-in">
-              <button
-                type="button"
-                onClick={() => setShowGuide(true)}
-                className="inline-flex items-center gap-1.5 bg-red-800 text-white px-6 py-3 rounded-lg font-bold hover:bg-red-900 transition-colors"
-              >
-                Nghe lời đúc kết
-                <span className="material-symbols-outlined text-base">auto_awesome</span>
-              </button>
+        {/* Hai nguon goc da hop nhat */}
+        <div className="grid md:grid-cols-2 gap-3 mt-6">
+          {R.branches.map((b) => (
+            <div
+              key={b.id}
+              className={`rounded-xl p-4 text-white bg-gradient-to-br ${b.color} shadow`}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <span className="material-symbols-outlined">{b.icon}</span>
+                <h4 className="font-bold">{b.title}</h4>
+              </div>
+              <ul className="space-y-1.5 text-sm text-white/90">
+                {b.points.map((p, i) => (
+                  <li key={i} className="flex items-start gap-1.5">
+                    <span className="material-symbols-outlined text-sm mt-0.5">chevron_right</span>
+                    {p}
+                  </li>
+                ))}
+              </ul>
             </div>
-          )}
+          ))}
         </div>
-      ) : (
-        <div className="bg-gray-50 rounded-2xl border border-gray-200 p-5 md:p-6">
-          <DialogueSequence lines={guideLines} onComplete={onComplete} ctaLabel="Làm bài kiểm tra tổng kết" />
+
+        {/* Cau duc ket hoan chinh */}
+        <div className="mt-6 bg-white border-l-4 border-red-700 rounded-r-xl p-4 shadow-sm">
+          <p className="text-xs uppercase tracking-wider text-red-700 font-bold mb-1 flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-base">auto_awesome</span>
+            Đúc kết hoàn chỉnh
+          </p>
+          <p className="text-gray-800 leading-relaxed">{R.finalStatement}</p>
         </div>
-      )}
+
+        <div className="mt-6 text-center">
+          <button
+            type="button"
+            onClick={onComplete}
+            className="inline-flex items-center gap-1.5 bg-red-800 text-white px-6 py-3 rounded-lg font-bold hover:bg-red-900 transition-colors shadow-md active:scale-95"
+          >
+            Làm bài kiểm tra tổng kết
+            <span className="material-symbols-outlined text-base">arrow_forward</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
 
-function BranchCard({ branch, connected, onClick }) {
+// ============================================================================
+// BANG HOP NHAT (sidebar ben phai) — tich luy manh ghep + thao tac ghep
+// ============================================================================
+function PieceSlot({ branch, index, collected, active }) {
+  if (collected) {
+    return (
+      <div className={`rounded-xl p-3.5 text-white bg-gradient-to-br ${branch.color} shadow-sm j-unlock`}>
+        <div className="flex items-center gap-2">
+          <span className="h-7 w-7 rounded-full bg-white/25 flex items-center justify-center text-xs font-bold shrink-0">
+            {index + 1}
+          </span>
+          <span className="material-symbols-outlined">{branch.icon}</span>
+          <h4 className="font-bold text-sm leading-tight">{branch.title}</h4>
+          <span className="material-symbols-outlined ml-auto text-white/90">check_circle</span>
+        </div>
+        <p className="text-xs text-white/90 mt-2 leading-relaxed">{branch.tagline}</p>
+      </div>
+    );
+  }
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`w-full text-left rounded-2xl p-5 text-white bg-gradient-to-br ${branch.color} shadow-md transition-all ${
-        connected ? "ring-4 ring-amber-400 j-unlock" : "opacity-90 hover:opacity-100 hover:-translate-y-0.5"
+    <div
+      className={`rounded-xl p-3.5 border-2 border-dashed transition-all ${
+        active ? "border-red-300 bg-red-50/50" : "border-gray-200 bg-gray-50"
       }`}
     >
-      <div className="flex items-center gap-2 mb-2">
-        <span className="material-symbols-outlined">{branch.icon}</span>
-        <h4 className="font-bold">{branch.title}</h4>
-        {connected && <span className="material-symbols-outlined ml-auto text-amber-300">check_circle</span>}
+      <div className="flex items-center gap-2">
+        <span
+          className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+            active ? "bg-red-200 text-red-800" : "bg-gray-200 text-gray-400"
+          }`}
+        >
+          {index + 1}
+        </span>
+        <span className={`material-symbols-outlined ${active ? "text-red-400" : "text-gray-300"}`}>
+          {active ? "hourglass_top" : "lock"}
+        </span>
+        <span className={`text-sm font-semibold ${active ? "text-red-700" : "text-gray-400"}`}>
+          {active ? "Đang khám phá…" : "Chưa mở khóa"}
+        </span>
       </div>
-      <ul className="space-y-1.5 text-sm text-white/90">
-        {branch.points.map((p, i) => (
-          <li key={i} className="flex items-start gap-1.5">
-            <span className="material-symbols-outlined text-sm mt-0.5">chevron_right</span>
-            {p}
-          </li>
-        ))}
-      </ul>
-    </button>
+    </div>
+  );
+}
+
+function KnowledgePanel({ pieces, activePieceId, canMerge, merged, onMerge }) {
+  const branches = ROUND_SUMMARY.branches;
+  return (
+    <aside className="lg:sticky lg:top-[5.5rem]">
+      <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
+        <div className="bg-gradient-to-r from-red-900 to-red-800 px-4 py-3 text-white">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined">extension</span>
+            <h3 className="font-bold">Nguồn Gốc Triết Học</h3>
+            <span className="ml-auto text-xs bg-white/20 px-2 py-0.5 rounded-full font-bold tabular-nums">
+              {pieces.length}/{JOURNEY_TOTAL_PIECES}
+            </span>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-2.5">
+          <PieceSlot
+            branch={branches[0]}
+            index={0}
+            collected={pieces.includes(branches[0].id)}
+            active={activePieceId === branches[0].id}
+          />
+
+          {/* Dau noi giua 2 manh */}
+          <div className="flex justify-center">
+            <span
+              className={`material-symbols-outlined text-2xl ${
+                merged ? "text-green-500" : canMerge ? "text-red-500 animate-pulse" : "text-gray-300"
+              }`}
+            >
+              {merged ? "link" : "add"}
+            </span>
+          </div>
+
+          <PieceSlot
+            branch={branches[1]}
+            index={1}
+            collected={pieces.includes(branches[1].id)}
+            active={activePieceId === branches[1].id}
+          />
+
+          {/* Vung thao tac ghep — bo khoi "Triet hoc ra doi" sau khi ghep theo yeu cau */}
+          {!merged && (
+            <div className="pt-2">
+              {canMerge ? (
+                <button
+                  type="button"
+                  onClick={onMerge}
+                  className="w-full inline-flex items-center justify-center gap-2 bg-red-800 text-white px-4 py-3 rounded-xl font-bold hover:bg-red-900 transition-colors shadow-md j-glow active:scale-95"
+                >
+                  <span className="material-symbols-outlined">join_full</span>
+                  Ghép 2 mảnh
+                </button>
+              ) : (
+                <p className="text-center text-xs text-gray-400 leading-relaxed px-2">
+                  Hoàn thành cả 2 phần học để mở khóa thao tác ghép.
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </aside>
   );
 }
 
@@ -841,7 +909,7 @@ function FinalQuizStage({ onComplete }) {
 // ============================================================================
 // CHANG 6 — HOAN THANH
 // ============================================================================
-function CompletionStage({ score, onReplay }) {
+function CompletionStage({ score, onReplay, nextLesson, onNextLesson }) {
   const total = JOURNEY_FINAL_QUIZ.length;
   return (
     <div className="bg-gradient-to-br from-indigo-900 via-purple-900 to-fuchsia-900 rounded-2xl shadow-xl p-8 text-white text-center relative overflow-hidden">
@@ -868,14 +936,27 @@ function CompletionStage({ score, onReplay }) {
           <footer className="text-sm text-amber-200 not-italic mt-1">— {COMPLETION.quote.author}</footer>
         </blockquote>
 
-        <button
-          type="button"
-          onClick={onReplay}
-          className="mt-7 inline-flex items-center gap-1.5 bg-white text-purple-900 px-6 py-3 rounded-lg font-bold hover:bg-purple-50 transition-colors"
-        >
-          <span className="material-symbols-outlined text-base">replay</span>
-          Chơi lại hành trình
-        </button>
+        <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+          <button
+            type="button"
+            onClick={onReplay}
+            className="inline-flex items-center gap-1.5 bg-white/15 border border-white/30 text-white px-6 py-3 rounded-lg font-bold hover:bg-white/25 transition-colors"
+          >
+            <span className="material-symbols-outlined text-base">replay</span>
+            Chơi lại hành trình
+          </button>
+
+          {nextLesson && (
+            <button
+              type="button"
+              onClick={() => onNextLesson?.(nextLesson.slug)}
+              className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-orange-500 text-white px-6 py-3 rounded-lg font-bold hover:from-amber-500 hover:to-orange-600 transition-colors shadow-lg active:scale-95"
+            >
+              Bài học tiếp theo
+              <span className="material-symbols-outlined text-base">arrow_forward</span>
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -884,35 +965,46 @@ function CompletionStage({ score, onReplay }) {
 // ============================================================================
 // THANH TIEN DO CHANG + MANH GHEP
 // ============================================================================
-function JourneyHeader({ stage, pieces, onReset }) {
+function JourneyHeader({ stage, pieces, onBack, onReset }) {
+  const steps = STAGES.slice(0, 5);
   const activeIndex = STAGES.indexOf(stage);
+  const canGoBack = activeIndex > 0;
+  const currentLabel = STAGE_LABELS[steps[Math.min(activeIndex, steps.length - 1)]];
+
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 mb-6 sticky top-4 z-20">
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {STAGES.slice(0, 5).map((s, i) => (
-            <React.Fragment key={s}>
-              <div
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
-                  i < activeIndex
-                    ? "bg-green-100 text-green-700"
-                    : i === activeIndex
-                    ? "bg-red-800 text-white"
-                    : "bg-gray-100 text-gray-400"
-                }`}
-              >
-                <span className="material-symbols-outlined text-sm">
-                  {i < activeIndex ? "check_circle" : i === activeIndex ? "play_circle" : "radio_button_unchecked"}
-                </span>
-                {STAGE_LABELS[s]}
-              </div>
-              {i < 4 && <span className="material-symbols-outlined text-gray-300 text-sm">chevron_right</span>}
-            </React.Fragment>
-          ))}
+    <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-4 md:p-5 mb-6 sticky top-4 z-20">
+      {/* --- Hang dieu khien: Quay lai · vi tri hien tai · manh ghep · lam lai --- */}
+      <div className="flex items-center justify-between gap-3 mb-5">
+        <button
+          type="button"
+          onClick={onBack}
+          disabled={!canGoBack}
+          title="Quay lại chặng trước"
+          className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-bold border-2 transition-all ${
+            canGoBack
+              ? "border-red-800 text-red-800 bg-white hover:bg-red-800 hover:text-white shadow-sm active:scale-95"
+              : "border-gray-100 text-gray-300 cursor-not-allowed"
+          }`}
+        >
+          <span className="material-symbols-outlined text-lg">arrow_back</span>
+          <span className="hidden sm:inline">Quay lại</span>
+        </button>
+
+        {/* Nhan chang hien tai — nhin la biet dang o dau */}
+        <div className="text-center min-w-0">
+          <p className="text-[10px] uppercase tracking-wider text-gray-400 font-bold leading-none">
+            Chặng {Math.min(activeIndex + 1, steps.length)}/{steps.length}
+          </p>
+          <p className="text-sm md:text-base font-bold text-red-900 truncate leading-tight mt-0.5">
+            {currentLabel}
+          </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full">
+        <div className="flex items-center gap-2 shrink-0">
+          <div
+            className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full"
+            title="Mảnh ghép tri thức đã thu thập"
+          >
             <span className="material-symbols-outlined text-amber-600 text-base">extension</span>
             <span className="text-sm font-bold text-amber-700 tabular-nums">
               {pieces.length}/{JOURNEY_TOTAL_PIECES}
@@ -922,11 +1014,57 @@ function JourneyHeader({ stage, pieces, onReset }) {
             type="button"
             onClick={onReset}
             title="Bắt đầu lại từ đầu"
-            className="text-gray-400 hover:text-red-800 transition-colors"
+            className="inline-flex items-center justify-center h-9 w-9 rounded-full text-gray-400 hover:text-white hover:bg-red-700 border border-gray-200 hover:border-red-700 transition-all active:scale-95"
           >
-            <span className="material-symbols-outlined">restart_alt</span>
+            <span className="material-symbols-outlined text-lg">restart_alt</span>
           </button>
         </div>
+      </div>
+
+      {/* --- Stepper truc quan: vong tron danh so noi bang duong tien trinh --- */}
+      <div className="flex items-start">
+        {steps.map((s, i) => {
+          const done = i < activeIndex;
+          const active = i === activeIndex;
+          return (
+            <React.Fragment key={s}>
+              <div className="flex flex-col items-center gap-1.5 shrink-0 w-14 md:w-16">
+                <div
+                  className={`h-9 w-9 md:h-10 md:w-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
+                    done
+                      ? "bg-green-500 text-white shadow-sm"
+                      : active
+                      ? "bg-red-800 text-white ring-4 ring-red-100 shadow-md scale-110"
+                      : "bg-white text-gray-400 border-2 border-gray-200"
+                  }`}
+                >
+                  {done ? (
+                    <span className="material-symbols-outlined text-lg">check</span>
+                  ) : (
+                    i + 1
+                  )}
+                </div>
+                <span
+                  className={`text-[11px] md:text-xs font-semibold text-center leading-tight ${
+                    active ? "text-red-800" : done ? "text-green-600" : "text-gray-400"
+                  }`}
+                >
+                  {STAGE_LABELS[s]}
+                </span>
+              </div>
+
+              {i < steps.length - 1 && (
+                <div className="flex-1 h-1.5 rounded-full bg-gray-200 overflow-hidden mt-[15px] md:mt-[17px]">
+                  <div
+                    className={`h-full rounded-full bg-green-500 transition-all duration-500 ${
+                      done ? "w-full" : "w-0"
+                    }`}
+                  />
+                </div>
+              )}
+            </React.Fragment>
+          );
+        })}
       </div>
     </div>
   );
@@ -935,7 +1073,7 @@ function JourneyHeader({ stage, pieces, onReset }) {
 // ============================================================================
 // COMPONENT GOC — dieu phoi toan bo hanh trinh
 // ============================================================================
-export default function PhilosophyJourney() {
+export default function PhilosophyJourney({ nextLesson = null, onNextLesson }) {
   const [state, setState] = useLocalStorage(JOURNEY_STORAGE_KEY, INITIAL_STATE);
 
   const setStage = useCallback(
@@ -955,10 +1093,29 @@ export default function PhilosophyJourney() {
 
   const reset = useCallback(() => setState(INITIAL_STATE), [setState]);
 
-  const { stage, pieces, score } = state;
+  // Ghep 2 manh tri thuc -> tao duc ket hoan chinh
+  const mergePieces = useCallback(() => setStage({ merged: true }), [setStage]);
+
+  // Quay lai: lui ve chang (phan) lien truoc, tung buoc mot — khong ve lai tu dau
+  const goBack = useCallback(
+    () =>
+      setState((prev) => {
+        const idx = STAGES.indexOf(prev.stage);
+        if (idx <= 0) return prev;
+        return { ...prev, stage: STAGES[idx - 1] };
+      }),
+    [setState]
+  );
+
+  const { stage, pieces, score, merged } = state;
+
+  // Sidebar "Bang Hop Nhat" chi hien o cac chang hoc (Nhan thuc/Xa hoi/Hop nhat)
+  const showPanel = stage === "cognitive" || stage === "social" || stage === "summary";
+  const activePieceId =
+    stage === "cognitive" ? "cognitive" : stage === "social" ? "social" : null;
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className={`${showPanel ? "max-w-6xl" : "max-w-3xl"} mx-auto transition-all`}>
       {/* Tieu de bai hoc */}
       <div className="mb-5">
         <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-200 text-indigo-800 px-3 py-1.5 rounded-full text-xs font-bold mb-2">
@@ -973,27 +1130,60 @@ export default function PhilosophyJourney() {
         </p>
       </div>
 
-      {stage !== "done" && <JourneyHeader stage={stage} pieces={pieces} onReset={reset} />}
-
-      {stage === "intro" && (
-        <IntroStage onComplete={(startPoint) => setStage({ startPoint, stage: "cognitive" })} />
+      {stage !== "done" && (
+        <JourneyHeader stage={stage} pieces={pieces} onBack={goBack} onReset={reset} />
       )}
 
-      {stage === "cognitive" && (
-        <CognitiveStage onComplete={(piece) => collectPiece(piece, "social")} />
+      {showPanel ? (
+        // --- Layout 2 cot: noi dung bai hoc (trai) + Bang Hop Nhat (phai) ---
+        <div className="grid lg:grid-cols-[minmax(0,1fr)_340px] gap-6 items-start">
+          <div className="min-w-0">
+            {stage === "cognitive" && (
+              <CognitiveStage onComplete={(piece) => collectPiece(piece, "social")} />
+            )}
+            {stage === "social" && (
+              <SocialStage onComplete={(piece) => collectPiece(piece, "summary")} />
+            )}
+            {stage === "summary" && (
+              <SummaryStage
+                merged={merged}
+                onMerge={mergePieces}
+                onComplete={() => setStage({ stage: "quiz" })}
+              />
+            )}
+          </div>
+
+          <KnowledgePanel
+            pieces={pieces}
+            activePieceId={activePieceId}
+            canMerge={stage === "summary" && pieces.length >= JOURNEY_TOTAL_PIECES && !merged}
+            merged={merged}
+            onMerge={mergePieces}
+          />
+        </div>
+      ) : (
+        // --- Cac chang 1 cot: Dan nhap / Quiz / Hoan thanh ---
+        <>
+          {stage === "intro" && (
+            <IntroStage onComplete={(startPoint) => setStage({ startPoint, stage: "cognitive" })} />
+          )}
+
+          {stage === "quiz" && (
+            <FinalQuizStage
+              onComplete={(finalScore) => setStage({ score: finalScore, stage: "done" })}
+            />
+          )}
+
+          {stage === "done" && (
+            <CompletionStage
+              score={score ?? 0}
+              onReplay={reset}
+              nextLesson={nextLesson}
+              onNextLesson={onNextLesson}
+            />
+          )}
+        </>
       )}
-
-      {stage === "social" && (
-        <SocialStage onComplete={(piece) => collectPiece(piece, "summary")} />
-      )}
-
-      {stage === "summary" && <SummaryStage onComplete={() => setStage({ stage: "quiz" })} />}
-
-      {stage === "quiz" && (
-        <FinalQuizStage onComplete={(finalScore) => setStage({ score: finalScore, stage: "done" })} />
-      )}
-
-      {stage === "done" && <CompletionStage score={score ?? 0} onReplay={reset} />}
     </div>
   );
 }
