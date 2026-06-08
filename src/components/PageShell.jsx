@@ -2,18 +2,31 @@ import React from "react";
 import Navbar from "./Navbar";
 import StudyModulesSidebar from "./StudyModulesSidebar";
 import DiscussionWidget from "./DiscussionWidget";
+import useLocalStorage from "../hooks/useLocalStorage";
 
 // Layout chuan dung cho moi trang trong he thong
 // Lay HomePages lam mau: Navbar + Sidebar trai + Main bg-gray-50
 // activeKey: muc dang chon trong sidebar
 // footer: optional component hien o day sidebar
 export default function PageShell({ activeKey, footer = null, children }) {
+  // Trang thai thu gon sidebar — luu localStorage de giu nguyen khi chuyen trang
+  const [collapsed, setCollapsed] = useLocalStorage("mln_sidebar_collapsed", false);
+
   return (
     <>
       <Navbar />
       <div className="flex">
-        <StudyModulesSidebar activeKey={activeKey} footer={footer} />
-        <main className="flex-1 lg:ml-72 min-h-screen bg-gray-50">
+        <StudyModulesSidebar
+          activeKey={activeKey}
+          footer={footer}
+          collapsed={collapsed}
+          onToggle={() => setCollapsed((prev) => !prev)}
+        />
+        <main
+          className={`flex-1 ${
+            collapsed ? "lg:ml-16" : "lg:ml-72"
+          } min-h-screen bg-gray-50 transition-[margin] duration-300`}
+        >
           {children}
         </main>
       </div>
@@ -31,22 +44,28 @@ export default function PageShell({ activeKey, footer = null, children }) {
 // children: noi dung phu (vd thanh tim kiem)
 export function PageHero({ eyebrow, icon, title, subtitle, children }) {
   return (
-    <section className="bg-red-800 py-12 px-12 text-white relative overflow-hidden">
+    <section className="bg-red-800 py-8 px-5 md:py-12 md:px-12 text-white relative overflow-hidden">
       <div className="max-w-5xl mx-auto relative z-10">
         {(eyebrow || icon) && (
-          <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
             {icon && (
-              <span className="material-symbols-outlined text-3xl">{icon}</span>
+              <span className="material-symbols-outlined text-2xl md:text-3xl">{icon}</span>
             )}
             {eyebrow && (
-              <span className="text-sm uppercase tracking-wider opacity-80">
+              <span className="text-xs md:text-sm uppercase tracking-wider opacity-80">
                 {eyebrow}
               </span>
             )}
           </div>
         )}
-        <h1 className="font-bold text-4xl md:text-5xl mb-4">{title}</h1>
-        {subtitle && <p className="text-white/80 max-w-2xl mb-6">{subtitle}</p>}
+        <h1 className="font-bold text-2xl sm:text-3xl md:text-5xl leading-tight mb-3 md:mb-4">
+          {title}
+        </h1>
+        {subtitle && (
+          <p className="text-sm md:text-base text-white/80 max-w-2xl mb-5 md:mb-6">
+            {subtitle}
+          </p>
+        )}
         {children}
       </div>
     </section>

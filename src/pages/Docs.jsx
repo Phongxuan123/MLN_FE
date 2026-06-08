@@ -42,7 +42,7 @@ export default function Docs() {
               {SAMPLE_DOCS.map((doc) => (
                 <article
                   key={doc.id}
-                  className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex items-start gap-5 hover:shadow-md transition-shadow"
+                  className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 md:p-6 flex flex-col sm:flex-row items-start gap-4 sm:gap-5 hover:shadow-md transition-shadow"
                 >
                   <div className="h-14 w-14 rounded-xl bg-red-50 text-red-800 flex items-center justify-center shrink-0">
                     <span className="material-symbols-outlined text-3xl">
@@ -73,7 +73,7 @@ export default function Docs() {
                   </div>
                   <button
                     type="button"
-                    className="bg-red-800 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-red-900 transition-colors flex items-center gap-2 shrink-0"
+                    className="bg-red-800 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-red-900 transition-colors flex items-center justify-center gap-2 shrink-0 w-full sm:w-auto"
                   >
                     <span className="material-symbols-outlined text-base">
                       download

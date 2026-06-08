@@ -19,6 +19,9 @@ export const JOURNEY_FINAL_PASS = 3;                           // số câu đú
 export const TYPEWRITER_SPEED_MS = 18;                         // tốc độ gõ chữ của lời thoại nhân vật dẫn đường (ms/ký tự)
 export const NPC_REVEAL_DELAY_MS = 550;                        // độ trễ giữa các bong bóng thoại NPC khi xuất hiện tuần tự
 
+// --- Link khảo sát ngoài (Google Form) ---
+export const SURVEY_URL = "https://forms.gle/9AXVDRqzcAnTbdU39";
+
 // --- Cấu hình sidebar dùng chung cho mọi trang ---
 // Mỗi item có key để xác định trang đang active
 // Mindmap đã được tích hợp thẳng vào trang Lessons nên không còn mục riêng

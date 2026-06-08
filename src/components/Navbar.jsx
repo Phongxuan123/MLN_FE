@@ -12,7 +12,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import { SIDEBAR_NAV_ITEMS } from "../constants";
+import { SIDEBAR_NAV_ITEMS, SURVEY_URL } from "../constants";
 import { useAuth } from "../context/AuthContext";
 
 // Lấy chữ cái đầu của tên để hiển thị trong avatar
@@ -190,7 +190,7 @@ export default function Navbar() {
           onClick={closeMobileMenu}
         >
           <aside
-            className="absolute left-0 top-0 bottom-0 w-72 bg-white shadow-xl flex flex-col"
+            className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] bg-white shadow-xl flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200">
@@ -253,6 +253,17 @@ export default function Navbar() {
                 <span className="material-symbols-outlined">settings</span>
                 Cài đặt
               </NavLink>
+
+              <a
+                href={SURVEY_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={closeMobileMenu}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-red-800 font-semibold hover:bg-red-50"
+              >
+                <span className="material-symbols-outlined">assignment</span>
+                Thực hiện khảo sát
+              </a>
             </nav>
           </aside>
         </div>

@@ -1,10 +1,18 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { DISCUSSION_SEED } from "../data/discussionSeed";
 
-// Khu thảo luận nổi (floating) — cố định ở góc trái dưới, không bị ảnh hưởng khi cuộn trang
+const FAB_SIZE = 56; // h-14 w-14
+const EDGE = 16; // khoảng cách tối thiểu tới mép màn hình
+const DRAG_THRESHOLD = 5; // px — vượt ngưỡng này coi là kéo, không phải bấm
+const POS_KEY = "mln_discussion_pos";
+
+const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+
+// Khu thảo luận nổi (floating) — có thể KÉO-THẢ tự do như bong bóng chat
 // Hiển thị trao đổi giữa người học và Admin; câu trả lời của Admin nổi bật hơn
 // Tin nhắn người dùng gửi được lưu vào localStorage để không mất khi tải lại
+// Vị trí nút cũng được lưu lại để giữ nguyên khi tải lại trang
 export default function DiscussionWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [userMessages, setUserMessages] = useLocalStorage(
@@ -14,6 +22,19 @@ export default function DiscussionWidget() {
   const [draft, setDraft] = useState("");
   const listEndRef = useRef(null);
 
+  // Vị trí nút (top-left, px). null = dùng vị trí mặc định góc trái dưới.
+  const [pos, setPos] = useState(() => {
+    try {
+      const v = JSON.parse(localStorage.getItem(POS_KEY));
+      return v && typeof v.x === "number" && typeof v.y === "number" ? v : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const fabRef = useRef(null);
+  const drag = useRef({ active: false, moved: false, offsetX: 0, offsetY: 0 });
+
   const allMessages = [...DISCUSSION_SEED, ...userMessages];
 
   // Cuộn xuống tin nhắn mới nhất mỗi khi mở panel hoặc có tin mới
@@ -22,6 +43,70 @@ export default function DiscussionWidget() {
       listEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [isOpen, userMessages.length]);
+
+  const handlePointerDown = useCallback((e) => {
+    const rect = fabRef.current.getBoundingClientRect();
+    drag.current = {
+      active: true,
+      moved: false,
+      offsetX: e.clientX - rect.left,
+      offsetY: e.clientY - rect.top,
+    };
+    fabRef.current.setPointerCapture(e.pointerId);
+  }, []);
+
+  const handlePointerMove = useCallback((e) => {
+    if (!drag.current.active) return;
+    const nextX = clamp(
+      e.clientX - drag.current.offsetX,
+      EDGE,
+      window.innerWidth - FAB_SIZE - EDGE
+    );
+    const nextY = clamp(
+      e.clientY - drag.current.offsetY,
+      EDGE,
+      window.innerHeight - FAB_SIZE - EDGE
+    );
+    const rect = fabRef.current.getBoundingClientRect();
+    if (
+      Math.abs(nextX - rect.left) > DRAG_THRESHOLD ||
+      Math.abs(nextY - rect.top) > DRAG_THRESHOLD
+    ) {
+      drag.current.moved = true;
+    }
+    setPos({ x: nextX, y: nextY });
+  }, []);
+
+  const handlePointerUp = useCallback(
+    (e) => {
+      if (!drag.current.active) return;
+      drag.current.active = false;
+      fabRef.current.releasePointerCapture(e.pointerId);
+      if (drag.current.moved) {
+        // Lưu vị trí cuối cùng
+        setPos((p) => {
+          if (p) localStorage.setItem(POS_KEY, JSON.stringify(p));
+          return p;
+        });
+      } else {
+        // Không di chuyển -> coi như một cú bấm: mở/đóng panel
+        setIsOpen((prev) => !prev);
+      }
+    },
+    []
+  );
+
+  // Vị trí container: dùng pos nếu đã kéo, ngược lại mặc định góc trái dưới
+  const containerStyle = pos
+    ? { left: pos.x, top: pos.y, right: "auto", bottom: "auto" }
+    : { left: EDGE * 2, bottom: EDGE * 2 };
+
+  // Panel mở hướng nào tuỳ vị trí nút (tránh tràn màn hình)
+  const inLowerHalf = pos ? pos.y > window.innerHeight / 2 : true;
+  const inRightHalf = pos ? pos.x > window.innerWidth / 2 : false;
+  const panelPos = `${inLowerHalf ? "bottom-full mb-3" : "top-full mt-3"} ${
+    inRightHalf ? "right-0" : "left-0"
+  }`;
 
   const handleSend = (e) => {
     e.preventDefault();
@@ -39,9 +124,9 @@ export default function DiscussionWidget() {
   };
 
   return (
-    <div className="fixed bottom-8 left-8 z-50">
+    <div className="fixed z-50" style={containerStyle}>
       {isOpen && (
-        <div className="absolute bottom-20 left-0 w-[22rem] max-w-[calc(100vw-4rem)] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden mb-2 flex flex-col">
+        <div className={`absolute ${panelPos} w-[22rem] max-w-[calc(100vw-4rem)] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col`}>
           {/* Header */}
           <div className="bg-red-800 text-white px-5 py-4 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
@@ -138,12 +223,16 @@ export default function DiscussionWidget() {
       )}
 
       <button
+        ref={fabRef}
         type="button"
-        aria-label="Mở khu thảo luận"
-        onClick={() => setIsOpen((prev) => !prev)}
-        className="h-14 w-14 bg-red-800 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
+        aria-label="Mở khu thảo luận (có thể kéo để di chuyển)"
+        title="Kéo để di chuyển · Bấm để mở thảo luận"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        className="h-14 w-14 bg-red-800 text-white rounded-full shadow-2xl flex items-center justify-center hover:bg-red-900 active:scale-95 transition-colors cursor-grab active:cursor-grabbing touch-none select-none"
       >
-        <span className="material-symbols-outlined text-2xl">
+        <span className="material-symbols-outlined text-2xl pointer-events-none">
           {isOpen ? "close" : "forum"}
         </span>
       </button>

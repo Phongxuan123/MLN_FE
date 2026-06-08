@@ -11,36 +11,36 @@ export default function HomePages() {
     <PageShell activeKey="home" footer={StartDailyLessonButton}>
       <>
         {/* Hero Section */}
-          <section className="w-full bg-red-800 py-16 px-12 relative overflow-hidden">
+          <section className="w-full bg-red-800 py-12 px-5 md:py-16 md:px-12 relative overflow-hidden">
             <div className="max-w-4xl mx-auto text-center relative z-10">
-              <h2 className="font-bold text-5xl text-white mb-6">Triết học Mác – Lênin</h2>
-              <p className="text-xl text-white/80 mb-10 max-w-2xl mx-auto">
+              <h2 className="font-bold text-3xl sm:text-4xl md:text-5xl text-white mb-4 md:mb-6 leading-tight">Triết học Mác – Lênin</h2>
+              <p className="text-base md:text-xl text-white/80 mb-8 md:mb-10 max-w-2xl mx-auto">
                 Nghiên cứu các quy luật vận động chung nhất của tự nhiên, xã hội và tư duy thông qua phương pháp luận biện chứng duy vật.
               </p>
 
               <div className="relative max-w-2xl mx-auto">
                 <input
-                  className="w-full bg-white/10 border-white/30 border text-white placeholder:text-white/50 rounded-full px-6 py-4 focus:ring-2 focus:ring-white focus:border-transparent outline-none backdrop-blur-sm transition-all"
+                  className="w-full bg-white/10 border-white/30 border text-white placeholder:text-white/50 rounded-full pl-5 pr-28 py-3.5 md:px-6 md:py-4 focus:ring-2 focus:ring-white focus:border-transparent outline-none backdrop-blur-sm transition-all"
                   placeholder="Tìm kiếm khái niệm, luận điểm hoặc bài học..."
                   type="text"
                 />
-                <button className="absolute right-3 top-2 bottom-2 bg-white text-red-800 px-6 rounded-full font-bold flex items-center gap-2 hover:bg-gray-100 transition-colors">
+                <button className="absolute right-2 md:right-3 top-2 bottom-2 bg-white text-red-800 px-4 md:px-6 rounded-full font-bold flex items-center gap-2 hover:bg-gray-100 transition-colors">
                   <span className="material-symbols-outlined text-sm">bolt</span>
-                  AI Search
+                  <span className="hidden sm:inline">AI Search</span>
                 </button>
               </div>
             </div>
           </section>
 
-          <div className="px-12 py-12 max-w-6xl mx-auto">
+          <div className="px-4 py-8 md:px-12 md:py-12 max-w-6xl mx-auto">
             {/* Quotes Section & Progress */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-              <div className="md:col-span-2 bg-blue-50 p-8 rounded-xl shadow-md border-l-4 border-red-800 relative">
-                <span className="material-symbols-outlined absolute right-6 top-6 text-red-800/10 text-6xl select-none">
+              <div className="md:col-span-2 bg-blue-50 p-6 md:p-8 rounded-xl shadow-md border-l-4 border-red-800 relative">
+                <span className="material-symbols-outlined absolute right-6 top-6 text-red-800/10 text-5xl md:text-6xl select-none">
                   format_quote
                 </span>
                 <div className="relative z-10">
-                  <p className="italic text-2xl text-gray-900 mb-6 leading-relaxed">
+                  <p className="italic text-lg md:text-2xl text-gray-900 mb-6 leading-relaxed">
                     "Các nhà triết học đã chỉ giải thích thế giới bằng nhiều cách khác nhau, song vấn đề là cải tạo thế giới."
                   </p>
                   <div className="flex items-center gap-4">
@@ -178,7 +178,7 @@ export default function HomePages() {
             {/* Timeline & Mind Map */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Timeline */}
-              <div className="bg-blue-50 p-8 rounded-xl shadow-md border border-gray-200">
+              <div className="bg-blue-50 p-6 md:p-8 rounded-xl shadow-md border border-gray-200">
                 <div className="flex justify-between items-center mb-8">
                   <h3 className="font-bold text-lg text-gray-900">Historical Milestone</h3>
                   <button className="text-red-800 font-semibold text-sm">View Timeline</button>
@@ -200,7 +200,7 @@ export default function HomePages() {
               </div>
 
               {/* Knowledge Map */}
-              <Link to="/lessons" className="bg-blue-50 p-8 rounded-xl shadow-md border border-gray-200 cursor-pointer block hover:shadow-lg transition-all">
+              <Link to="/lessons" className="bg-blue-50 p-6 md:p-8 rounded-xl shadow-md border border-gray-200 cursor-pointer block hover:shadow-lg transition-all">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="font-bold text-lg text-gray-900">Knowledge Map</h3>
                   <span className="material-symbols-outlined text-gray-600">open_in_full</span>
@@ -217,7 +217,7 @@ export default function HomePages() {
         {/* AI Chat Bubble */}
       <div className="fixed bottom-8 right-8 z-50">
         {isChatOpen && (
-          <div className="absolute bottom-20 right-0 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden mb-4">
+          <div className="absolute bottom-20 right-0 w-80 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden mb-4">
             <div className="bg-red-800 p-4 text-white flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
