@@ -3,7 +3,6 @@ import { useParams, Link } from "react-router-dom";
 import PageShell, { PageHero } from "../components/PageShell";
 import { useToast } from "../components/Toast";
 import { MEMORY_CHAPTERS } from "../data/flashcardData";
-import { MEMORY_MATCH_DELAY_MS, MEMORY_FLIP_BACK_MS } from "../constants";
 
 // Tạo danh sách thẻ đã xáo trộn từ các cặp term/desc của chương
 // Mỗi cặp sinh ra 2 thẻ: 1 thẻ khái niệm, 1 thẻ mô tả — dùng chung pairId
@@ -26,7 +25,7 @@ const FlashcardDetail = () => {
   const chapter = MEMORY_CHAPTERS[id];
 
   const [round, setRound] = useState(0); // tăng lên để xáo lại khi chơi lại
-  const [flippedKeys, setFlippedKeys] = useState([]); // các thẻ đang lật (tối đa 2)
+  const [revealed, setRevealed] = useState([]); // các thẻ đang ngửa & CHƯA ghép (tối đa 2)
   const [matchedPairs, setMatchedPairs] = useState([]); // pairId đã ghép đúng
   const [moves, setMoves] = useState(0);
 
@@ -39,23 +38,7 @@ const FlashcardDetail = () => {
   );
 
   const totalPairs = chapter ? chapter.pairs.length : 0;
-  const isComparing = flippedKeys.length === 2;
   const isWon = totalPairs > 0 && matchedPairs.length === totalPairs;
-
-  // So khớp khi đã lật đủ 2 thẻ
-  useEffect(() => {
-    if (flippedKeys.length !== 2) return;
-    const [first, second] = flippedKeys.map((key) =>
-      tiles.find((tile) => tile.key === key)
-    );
-    const isMatch = first && second && first.pairId === second.pairId;
-    const delay = isMatch ? MEMORY_MATCH_DELAY_MS : MEMORY_FLIP_BACK_MS;
-    const timer = setTimeout(() => {
-      if (isMatch) setMatchedPairs((prev) => [...prev, first.pairId]);
-      setFlippedKeys([]);
-    }, delay);
-    return () => clearTimeout(timer);
-  }, [flippedKeys, tiles]);
 
   // Thông báo khi hoàn thành
   useEffect(() => {
@@ -67,25 +50,44 @@ const FlashcardDetail = () => {
   }, [isWon]);
 
   const restartGame = () => {
-    setFlippedKeys([]);
+    setRevealed([]);
     setMatchedPairs([]);
     setMoves(0);
     setRound((prev) => prev + 1);
   };
 
+  // Cơ chế: thẻ lật lên thì GIỮ NGUYÊN (để đọc nội dung). Tối đa 2 thẻ ngửa.
+  // - Nếu thẻ mới khớp 1 trong các thẻ đang ngửa -> ghép đúng cặp đó.
+  // - Nếu đã có 2 thẻ ngửa mà thẻ thứ 3 không khớp -> úp 2 thẻ cũ, giữ thẻ mới ngửa.
   const handleTileClick = (tile) => {
-    if (isComparing) return; // đang so khớp, khóa thao tác
     if (matchedPairs.includes(tile.pairId)) return; // đã ghép xong
-    if (flippedKeys.includes(tile.key)) return; // đang lật rồi
-    const next = [...flippedKeys, tile.key];
-    setFlippedKeys(next);
-    if (next.length === 2) setMoves((prev) => prev + 1);
+    if (revealed.includes(tile.key)) return; // thẻ này đang ngửa rồi
+
+    setMoves((prev) => prev + 1);
+
+    // Có thẻ đang ngửa nào cùng cặp (ghép được) không?
+    const matchKey = revealed.find((key) => {
+      const t = tiles.find((x) => x.key === key);
+      return t && t.pairId === tile.pairId;
+    });
+
+    if (matchKey) {
+      // Ghép đúng -> đánh dấu cặp, bỏ thẻ đã khớp khỏi danh sách ngửa
+      setMatchedPairs((prev) => [...prev, tile.pairId]);
+      setRevealed((prev) => prev.filter((key) => key !== matchKey));
+    } else if (revealed.length >= 2) {
+      // Đã có 2 thẻ ngửa, thẻ thứ 3 không khớp -> úp 2 thẻ cũ, chỉ giữ thẻ mới
+      setRevealed([tile.key]);
+    } else {
+      // Giữ thẻ mới ngửa (thẻ thứ 1 hoặc thứ 2)
+      setRevealed((prev) => [...prev, tile.key]);
+    }
   };
 
   if (!chapter) {
     return (
       <PageShell activeKey="flashcards">
-        <div className="px-12 py-16 max-w-3xl mx-auto text-center">
+        <div className="px-6 md:px-12 py-12 md:py-16 max-w-3xl mx-auto text-center">
           <span className="material-symbols-outlined text-7xl text-gray-300">
             search_off
           </span>
@@ -109,7 +111,7 @@ const FlashcardDetail = () => {
         eyebrow="Trò chơi lật thẻ ghi nhớ"
         icon="extension"
         title={chapter.title}
-        subtitle="Tìm và ghép cặp giữa khái niệm và mô tả tương ứng. Ghép đúng thì hai thẻ biến mất, ghép sai thì thẻ úp lại. Vừa học vừa chơi!"
+        subtitle="Tìm và ghép cặp giữa khái niệm và mô tả tương ứng. Thẻ lật lên sẽ giữ nguyên để bạn kịp đọc; chỉ khi lật thẻ thứ ba không khớp thì hai thẻ cũ mới úp lại. Ghép đúng thì cặp thẻ biến mất."
       />
 
       <div className="px-6 md:px-12 py-10 max-w-5xl mx-auto">
@@ -160,7 +162,7 @@ const FlashcardDetail = () => {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
           {tiles.map((tile) => {
             const isMatched = matchedPairs.includes(tile.pairId);
-            const isFlipped = isMatched || flippedKeys.includes(tile.key);
+            const isFlipped = isMatched || revealed.includes(tile.key);
             const isTerm = tile.kind === "term";
             return (
               <button

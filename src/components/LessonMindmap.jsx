@@ -43,11 +43,11 @@ function Branch({ section, activeSlug, onOpenLesson }) {
         <div className="h-0.5 w-8 bg-gray-400" />
       </div>
 
-      <div className="flex-1">
+      <div className="flex-1 min-w-0">
         {/* Click đề mục -> mở bài học đầu tiên của đề mục đó */}
         <button
           onClick={() => onOpenLesson(section.lessons[0]?.slug)}
-          className="group inline-flex items-center gap-2 bg-white border-2 border-red-800 text-red-800 font-bold px-5 py-2.5 rounded-xl shadow-sm hover:bg-red-800 hover:text-white transition-all hover:shadow-lg hover:-translate-y-0.5"
+          className="group inline-flex items-center gap-2 max-w-full text-left bg-white border-2 border-red-800 text-red-800 font-bold px-5 py-2.5 rounded-xl shadow-sm hover:bg-red-800 hover:text-white transition-all hover:shadow-lg hover:-translate-y-0.5"
         >
           <span className="material-symbols-outlined text-base">topic</span>
           {section.title}
@@ -61,11 +61,11 @@ function Branch({ section, activeSlug, onOpenLesson }) {
           {section.lessons.map((lesson) => {
             const isActive = lesson.slug === activeSlug;
             return (
-              <div key={lesson.id} className="flex items-center gap-3">
-                <div className="h-0.5 w-6 bg-gray-300" />
+              <div key={lesson.id} className="flex items-center gap-3 min-w-0">
+                <div className="h-0.5 w-6 bg-gray-300 shrink-0" />
                 <button
                   onClick={() => onOpenLesson(lesson.slug)}
-                  className={`group flex items-center gap-2 px-4 py-2 rounded-lg border transition-all text-sm font-medium hover:shadow-md ${
+                  className={`group flex items-center gap-2 max-w-full text-left px-4 py-2 rounded-lg border transition-all text-sm font-medium hover:shadow-md ${
                     isActive
                       ? "bg-red-800 text-white border-red-800 shadow-md"
                       : "bg-blue-50 hover:bg-red-800 hover:text-white text-gray-800 border-gray-200 hover:border-red-800"

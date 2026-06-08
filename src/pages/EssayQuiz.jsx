@@ -32,7 +32,7 @@ const EssayQuiz = () => {
           className="w-full bg-white border-2 border-gray-200 rounded-2xl p-5 focus:border-red-800 outline-none resize-y font-medium text-gray-800"
         />
 
-        <div className="flex items-center justify-between text-sm text-gray-500">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm text-gray-500">
           <span>{essay.length} ký tự</span>
           <div className="flex gap-3">
             <button
